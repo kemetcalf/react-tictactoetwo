@@ -12,6 +12,7 @@ function Square(props) {
 
 class Board extends React.Component {
 	renderSquare(i) {
+		// console.log(i);
 		return (
 			<Square
 				value={this.props.squares[i]}
@@ -55,6 +56,34 @@ class Board extends React.Component {
 	}
 }
 
+function makeCoordinates(index) {
+	function column(index) {
+		const colModulo = index % 3;
+		if (colModulo < 1) {
+			return [1];
+		} else if (colModulo === 1) {
+			return [2];
+		} else if (colModulo === 2) {
+			return [3];
+		} else return null;
+	}
+
+	function row(index) {
+		const rowRemainder = index / 3;
+		if (rowRemainder < 1) {
+			return [1];
+		} else if (rowRemainder >= 1 && rowRemainder < 2) {
+			return [2];
+		} else if (rowRemainder >= 2 && rowRemainder < 3) {
+			return [3];
+		} else return null;
+	}
+
+	const coordinate = column(index).concat(row(index));
+
+	return coordinate;
+}
+
 class Game extends React.Component {
 	constructor(props) {
 		super(props);
@@ -62,6 +91,8 @@ class Game extends React.Component {
 			history: [{ squares: Array(9).fill(null) }],
 			stepNumber: 0,
 			xIsNext: true,
+			coordinate: [],
+			coordHistory: [],
 		};
 	}
 
@@ -69,6 +100,11 @@ class Game extends React.Component {
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
 		const current = history[history.length - 1];
 		const squares = current.squares.slice();
+
+		const currentCoords = makeCoordinates(i);
+		// console.log(currentCoords);
+		// TODO: SUCCESSFUL CLG make and current coords; NEXT, SHOW IN MOVE HISTORY
+
 		if (calculateWinner(squares) || squares[i]) {
 			return;
 		}
@@ -77,6 +113,8 @@ class Game extends React.Component {
 			history: history.concat([{ squares: squares }]),
 			stepNumber: history.length,
 			xIsNext: !this.state.xIsNext,
+			coordinate: currentCoords,
+			coordHistory: [...this.state.coordHistory, currentCoords],
 		});
 	}
 
@@ -84,16 +122,25 @@ class Game extends React.Component {
 		this.setState({
 			stepNumber: step,
 			xIsNext: step % 2 === 0,
+			coordinate: this.state.coordHistory[step],
 		});
 	}
 
 	render() {
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];
+		// console.log(current);
+
+		// console.log(this.state.coordHistory);
+		// console.log(this.state.coordHistory[2]);
+		// console.log(this.state.coordinate);
+
 		const winner = calculateWinner(current.squares);
 
 		const moves = history.map((step, move) => {
-			const desc = move ? "Go to move #" + move : "Go to game start";
+			const desc = move
+				? "Go to move #" + move + " at " + this.state.coordHistory[move - 1]
+				: "Go to game start";
 			return (
 				<li key={move}>
 					<button onClick={() => this.jumpTo(move)}>{desc}</button>
@@ -144,6 +191,7 @@ function calculateWinner(squares) {
 	}
 	return null;
 }
+
 // ========================================
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

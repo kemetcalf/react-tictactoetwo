@@ -22,17 +22,6 @@ class Board extends React.Component {
 	}
 
 	render() {
-		// **NOW INCLUDED IN IF/ELSE BELOW
-		// const status = "Next player: " + (this.state.xIsNext ? "X" : "O");
-
-		// const winner = calculateWinner(this.state.squares);
-		// let status;
-		// if (winner) {
-		// 	status = "Winner: " + winner;
-		// } else {
-		// 	status = "Next player: " + (this.state.xIsNext ? "X" : "O");
-		// } **NOW INCLUDED IN GAME COMPONENT
-
 		return (
 			<div>
 				{/* <div className="status">{status}</div> */}
@@ -100,10 +89,7 @@ class Game extends React.Component {
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
 		const current = history[history.length - 1];
 		const squares = current.squares.slice();
-
 		const currentCoords = makeCoordinates(i);
-		// console.log(currentCoords);
-		// TODO: SUCCESSFUL CLG make and current coords; NEXT, SHOW IN MOVE HISTORY
 
 		if (calculateWinner(squares) || squares[i]) {
 			return;
@@ -122,7 +108,6 @@ class Game extends React.Component {
 		this.setState({
 			stepNumber: step,
 			xIsNext: step % 2 === 0,
-			coordinate: this.state.coordHistory[step],
 		});
 	}
 
@@ -130,20 +115,26 @@ class Game extends React.Component {
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];
 		// console.log(current);
+		const winner = calculateWinner(current.squares);
 
 		// console.log(this.state.coordHistory);
-		// console.log(this.state.coordHistory[2]);
 		// console.log(this.state.coordinate);
-
-		const winner = calculateWinner(current.squares);
+		const active = { fontWeight: "bold" };
+		const inactive = { fontWeight: "normal" };
 
 		const moves = history.map((step, move) => {
 			const desc = move
 				? "Go to move #" + move + " at " + this.state.coordHistory[move - 1]
 				: "Go to game start";
+
 			return (
 				<li key={move}>
-					<button onClick={() => this.jumpTo(move)}>{desc}</button>
+					<button
+						onClick={() => this.jumpTo(move)}
+						style={this.state.stepNumber === move ? active : inactive}
+					>
+						{desc}
+					</button>
 				</li>
 			);
 		});

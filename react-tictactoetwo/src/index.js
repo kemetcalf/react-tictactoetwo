@@ -12,7 +12,7 @@ function Square(props) {
 
 class Board extends React.Component {
 	renderSquare(i) {
-		console.log(i);
+		// console.log(i);
 
 		return (
 			<Square
@@ -79,6 +79,7 @@ class Game extends React.Component {
 			xIsNext: true,
 			coordinate: [],
 			coordHistory: [],
+			order: true,
 		};
 	}
 
@@ -108,18 +109,21 @@ class Game extends React.Component {
 		});
 	}
 
-	render() {
-		const history = this.state.history;
-		const current = history[this.state.stepNumber];
-		// console.log(current);
-		const winner = calculateWinner(current.squares);
+	switchOrder(move) {
+		this.setState({ order: !this.state.order });
+	}
 
-		// console.log(this.state.coordHistory);
-		// console.log(this.state.coordinate);
+	render() {
 		const active = { fontWeight: "bold" };
 		const inactive = { fontWeight: "normal" };
 
+		const history = this.state.history;
+		const current = history[history.length - 1];
+		const winner = calculateWinner(current.squares);
+
 		const moves = history.map((step, move) => {
+			// console.log(step);
+			// console.log(move);
 			const desc = move
 				? "Go to move #" + move + " at " + this.state.coordHistory[move - 1]
 				: "Go to game start";
@@ -152,8 +156,38 @@ class Game extends React.Component {
 					/>
 				</div>
 				<div className="game-info">
-					<div>{status}</div>
-					<ol>{moves}</ol>
+					<div
+						style={{
+							display: "block",
+							margin: "auto",
+							width: "85%",
+							marginBottom: "20px",
+						}}
+					>
+						{status}
+					</div>
+					<button
+						onClick={() => this.switchOrder()}
+						style={{ display: "block", margin: "auto", width: "40%" }}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+						>
+							<path d="M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z"></path>
+						</svg>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+						>
+							<path d="M11.178 19.569a.998.998 0 0 0 1.644 0l9-13A.999.999 0 0 0 21 5H3a1.002 1.002 0 0 0-.822 1.569l9 13z"></path>
+						</svg>
+					</button>
+					<ol>{this.state.order ? moves : moves.reverse()}</ol>
 				</div>
 			</div>
 		);

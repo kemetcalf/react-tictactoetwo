@@ -3,11 +3,13 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 
 function Square(props) {
+	const winningComboStyle = { backgroundColor: "red" };
+
 	return (
 		<button
 			className="square"
 			onClick={props.onClick}
-			style={{ color: "green" }}
+			style={props.winningSquare ? winningComboStyle : null}
 		>
 			{props.value}
 		</button>
@@ -17,12 +19,12 @@ function Square(props) {
 class Board extends React.Component {
 	renderSquare(i) {
 		// console.log(i);
-
+		let winningSquare = this.props.winner;
 		return (
 			<Square
 				value={this.props.squares[i]}
 				onClick={() => this.props.onClick(i)}
-				className=""
+				winningCombo={winningSquare}
 			/>
 		);
 	}
@@ -230,15 +232,12 @@ function calculateWinner(squares) {
 	for (let i = 0; i < lines.length; i++) {
 		const [a, b, c] = lines[i];
 		if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-			// console.log(lines[i]);
 			winningLine = lines[i];
-			console.log(winningLine);
+			// console.log(winningLine);
 			const result = {
 				winningCombo: winningLine,
 				winner: squares[a],
 			};
-			// const firstInt = a;
-			// console.log(firstInt);
 
 			return result;
 		}

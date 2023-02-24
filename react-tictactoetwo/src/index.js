@@ -3,13 +3,13 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 
 function Square(props) {
-	const winningComboStyle = { backgroundColor: "red" };
+	let winningComboStyle = { backgroundColor: "#3be373" };
 
 	return (
 		<button
 			className="square"
 			onClick={props.onClick}
-			style={props.winningSquare ? winningComboStyle : null}
+			style={props.isWinningSquare ? winningComboStyle : null}
 		>
 			{props.value}
 		</button>
@@ -18,13 +18,11 @@ function Square(props) {
 
 class Board extends React.Component {
 	renderSquare(i) {
-		// console.log(i);
-		let winningSquare = this.props.winner;
 		return (
 			<Square
 				value={this.props.squares[i]}
 				onClick={() => this.props.onClick(i)}
-				winningCombo={winningSquare}
+				isWinningSquare={this.props.winningCombo.includes(i)}
 			/>
 		);
 	}
@@ -87,13 +85,14 @@ class Game extends React.Component {
 			coordinate: [],
 			coordHistory: [],
 			order: true,
+			victor: false,
 		};
 	}
 
 	handleClick(i) {
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
-		const selected = history[this.state.stepNumber];
-		const squares = selected.squares.slice();
+		const current = history[history.length - 1];
+		const squares = current.squares.slice();
 		const currentCoords = makeCoordinates(i);
 
 		if (calculateWinner(squares) || squares[i]) {
@@ -127,20 +126,11 @@ class Game extends React.Component {
 		const history = this.state.history;
 		const selected = history[this.state.stepNumber];
 
-		const finalResults = calculateWinner(selected.squares);
-		console.log("finalResults:");
-		console.log(finalResults);
-
-		let winner;
-		if (finalResults) {
-			winner = finalResults.winner;
-		} else {
-			winner = null;
-		}
+		const winner = calculateWinner(selected.squares);
+		console.log("winner:");
+		console.log(winner);
 
 		const moves = history.map((step, move) => {
-			// console.log(step);
-			// console.log(move);
 			const desc = move
 				? "Go to move #" + move + " at " + this.state.coordHistory[move - 1]
 				: "Go to game start";
@@ -158,11 +148,15 @@ class Game extends React.Component {
 		});
 
 		// TODO: UPDATE STATUS TO REMAIN 'WINNER' WHEN GAME IS DONE;
-		// TODO: CURRENTLY PLAY STOPS WHEN 'WINNER' CONDITION IS MET, BUT IF YOU SELECT A PREVIOUS MOVE, YOU CAN RESUME AND OVERWRITE THE PREVIOUS HISTORY
+		// TODO: CURRENTLY PLAY STOPS WHEN 'WINNER' CONDITION IS MET, BUT IF A PREVIOUS MOVE IS SELECTED, PLAY CAN RESUME AND OVERWRITE THE PREVIOUS HISTORY
 		let status;
+		let text = "";
+		function instantReplay(item) {
+			text += item + 1 + ", ";
+		}
 		if (winner) {
-			status = "Winner: " + winner;
-			// console.log(result);
+			winner.winningCombo.forEach(instantReplay);
+			status = "Winner: " + winner.winner + " at squares " + text;
 		} else {
 			status = "Next player: " + (this.state.xIsNext ? "X" : "O");
 		}
@@ -173,6 +167,7 @@ class Game extends React.Component {
 					<Board
 						squares={selected.squares}
 						onClick={(i) => this.handleClick(i)}
+						winningCombo={winner ? winner.winningCombo : []}
 					/>
 				</div>
 				<div className="game-info">
@@ -215,10 +210,6 @@ class Game extends React.Component {
 }
 
 function calculateWinner(squares) {
-	let winningLine;
-	// if (result.winner) {
-	// 	result.winningCombo = winningLine;
-	// }
 	const lines = [
 		[0, 1, 2],
 		[3, 4, 5],
@@ -232,14 +223,11 @@ function calculateWinner(squares) {
 	for (let i = 0; i < lines.length; i++) {
 		const [a, b, c] = lines[i];
 		if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-			winningLine = lines[i];
 			// console.log(winningLine);
-			const result = {
-				winningCombo: winningLine,
+			return {
 				winner: squares[a],
+				winningCombo: [a, b, c],
 			};
-
-			return result;
 		}
 	}
 

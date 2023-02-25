@@ -150,13 +150,25 @@ class Game extends React.Component {
 		// TODO: UPDATE STATUS TO REMAIN 'WINNER' WHEN GAME IS DONE;
 		// TODO: CURRENTLY PLAY STOPS WHEN 'WINNER' CONDITION IS MET, BUT IF A PREVIOUS MOVE IS SELECTED, PLAY CAN RESUME AND OVERWRITE THE PREVIOUS HISTORY
 		let status;
-		let text = "";
-		function instantReplay(item) {
-			text += item + 1 + ", ";
-		}
+		// let text = "";
+		let winningCoords = [];
+		// function instantReplay(item) {
+		// 	let winningSquare = makeCoordinates(item);
+		// 	console.log(winningSquare);
+
+		// 	winningCoords.push(winningSquare);
+		// 	console.log(winningCoords);
+		// }
+
+		// TODO: GET UNIQUE SQUARE INDEX
+		// TODO: RUN MAKECOORDINATES(INDEX)
+		// TODO: GET [] VALUE BACK
+		// TODO: PUSH TO COORDINATE ARRAY OF SETS
+		// TODO: FOR EACH [A, B] ARRAY IN ARRAY OF SETS, RELAY COORDS TO MAKE SENSE IN STATUS
+
 		if (winner) {
-			winner.winningCombo.forEach(instantReplay);
-			status = "Winner: " + winner.winner + " at squares " + text;
+			const coordCombo = winner.winningCombo;
+			status = "Winner: " + winner.winner + " at squares " + coordCombo;
 		} else {
 			status = "Next player: " + (this.state.xIsNext ? "X" : "O");
 		}
